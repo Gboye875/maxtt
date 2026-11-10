@@ -12,7 +12,23 @@
  document.addEventListener('click',e=>{if(!header.contains(e.target))close()});
  const main=document.querySelector('main');if(main){main.id='main-content';const skip=document.createElement('a');skip.className='skip-link';skip.href='#main-content';skip.textContent='Skip to content';document.body.prepend(skip)}
  const form=document.querySelector('#quoteform');if(form){for(const el of form.querySelectorAll('input,textarea'))el.maxLength=el.tagName==='TEXTAREA'?3000:150;form.querySelector('[name="contact"]')?.setAttribute('autocomplete','email')}
- function current(){nav.querySelectorAll('a').forEach(a=>{if(location.hash&&a.getAttribute('href')===location.hash)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})}
+ const sectionLabel=header.querySelector('.current-section');
+ const sections=[...document.querySelectorAll('[data-section-title]')], links=[...nav.querySelectorAll('a')];
+ let frame=0, previous=null;
+ function updateCurrent(){
+  frame=0;
+  const line=header.getBoundingClientRect().bottom+24;
+  let current=sections[0];
+  for(const section of sections){if(section.getBoundingClientRect().top<=line)current=section;else break}
+  const last=sections[sections.length-1];
+  if(last&&window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-2&&last.getBoundingClientRect().top<window.innerHeight)current=last;
+  if(!current||current===previous)return;
+  previous=current;
+  if(sectionLabel)sectionLabel.textContent=current.dataset.sectionTitle;
+  for(const link of links){if(link.getAttribute('href')==='#'+current.id)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current')}
+ }
+ function current(){if(!frame)frame=requestAnimationFrame(updateCurrent)}
+ window.addEventListener('scroll',current,{passive:true});window.addEventListener('resize',current);window.addEventListener('pageshow',current);
  window.addEventListener('hashchange',current);current();
 })();
 

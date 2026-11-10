@@ -27,3 +27,7 @@ The hero now uses assets/hero-background.mp4 (the supplied Create-a-fresh-correc
 ## Simple motion system
 
 Local Motion 12.23.24 (vendor/motion.js, MIT licence included) adds short hero and section/card entrances. CSS handles 3px card lifts, button/arrow feedback and the mobile menu entrance. motions.js also eases the planner result over 220ms and FAQ open/close over 220ms. Entrances run once as content enters view, with a small card stagger; filter results animate after each selection. Reduced-motion preferences disable these effects. Content stays visible if the library or script fails. No 3D effects, continuous decorative animations or layout changes were added. Restart preview.cjs to serve the new local script files.
+
+## Social contact links
+
+The “Connect with MaxTT” section below the enquiry form uses ordinary HTTPS links, with no new dependencies. In index.html, find id="social-contact" and replace the three href values with MaxTT’s WhatsApp Business number (wa.me followed by country code and digits), Instagram profile URL and TikTok profile URL. Replace the demo captions and introductory note once all links are verified. The demo number cannot receive messages; the other demo links go to platform homepages.

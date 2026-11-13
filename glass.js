@@ -61,20 +61,65 @@
   messageLink.href=url.href;messageLink.hidden=false;messageLink.click();
   status.textContent='Review your enquiry in WhatsApp and tap Send. If it did not open, use the link below.';
  });
- form.querySelector('#download-enquiry').addEventListener('click',()=>{
-  const message=enquiry();if(!message)return;
-  const url=URL.createObjectURL(new Blob([message+'\n\nPrepared locally; not submitted to MaxTT.'],{type:'text/plain;charset=utf-8'}));
-  const link=document.createElement('a');link.href=url;link.download='MaxTT-Power-Enquiry.txt';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-  status.textContent='Your copy is ready to download. It has not been sent.';
- });
  form.addEventListener('input',event=>{event.target.setCustomValidity?.('');messageLink.hidden=true;status.textContent=''});
 })();
 
 (() => {
  const sun=document.querySelector('.social-sun');if(!sun)return;
  const toggle=sun.querySelector('.sun-toggle'),panel=sun.querySelector('.sun-panel');
- function setOpen(open){panel.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Close contact and social links':'Open contact and social links')}
- toggle.addEventListener('click',()=>setOpen(panel.hidden));
+ let pointer=null,position=null,suppressClick=false;
+ const edge=8, gap=10;
+ const clamp=(value,min,max)=>Math.min(Math.max(value,min),Math.max(min,max));
+ function viewport(){return {width:document.documentElement.clientWidth,height:window.innerHeight}}
+ function positionPanel(){
+  if(panel.hidden)return;
+  const button=toggle.getBoundingClientRect(),{width,height}=viewport();
+  const above=button.top-edge-gap,below=height-button.bottom-edge-gap,openAbove=above>=below;
+  panel.classList.toggle('opens-below',!openAbove);
+  panel.style.maxHeight=Math.max(0,openAbove?above:below)+'px';
+  const maxLeft=width-edge-panel.offsetWidth;
+  panel.style.left=(clamp(button.right-panel.offsetWidth,edge,maxLeft)-button.left)+'px';
+ }
+ function setOpen(open){
+  panel.hidden=!open;
+  toggle.setAttribute('aria-expanded',String(open));
+  toggle.setAttribute('aria-label',open?'Close contact and social links':'Open contact and social links');
+  if(open)positionPanel();
+ }
+ function move(x,y){
+  const button=toggle.getBoundingClientRect(),{width,height}=viewport();
+  position={x:clamp(x,edge,width-button.width-edge),y:clamp(y,edge,height-button.height-edge)};
+  sun.classList.add('is-positioned');sun.style.left=position.x+'px';sun.style.top=position.y+'px';
+  positionPanel();
+ }
+ toggle.addEventListener('pointerdown',event=>{
+  if(pointer||event.isPrimary===false||event.button!==0)return;
+  const box=toggle.getBoundingClientRect();
+  suppressClick=false;pointer={id:event.pointerId,x:event.clientX,y:event.clientY,left:box.left,top:box.top,dragged:false};
+  toggle.setPointerCapture(event.pointerId);
+ });
+ toggle.addEventListener('pointermove',event=>{
+  if(!pointer||pointer.id!==event.pointerId)return;
+  const dx=event.clientX-pointer.x,dy=event.clientY-pointer.y;
+  if(!pointer.dragged&&Math.hypot(dx,dy)<6)return;
+  pointer.dragged=true;sun.classList.add('is-dragging');
+  move(pointer.left+dx,pointer.top+dy);
+ });
+ function endPointer(event){
+  if(!pointer||pointer.id!==event.pointerId)return;
+  suppressClick=pointer.dragged;pointer=null;sun.classList.remove('is-dragging');
+ }
+ toggle.addEventListener('pointerup',endPointer);toggle.addEventListener('pointercancel',endPointer);toggle.addEventListener('lostpointercapture',endPointer);
+ toggle.addEventListener('click',event=>{
+  if(suppressClick&&event.detail!==0){suppressClick=false;return}
+  suppressClick=false;setOpen(panel.hidden);
+ });
+ toggle.addEventListener('keydown',event=>{
+  const delta={ArrowLeft:[-20,0],ArrowRight:[20,0],ArrowUp:[0,-20],ArrowDown:[0,20]}[event.key];
+  if(!delta)return;
+  event.preventDefault();const box=toggle.getBoundingClientRect();move(box.left+delta[0],box.top+delta[1]);
+ });
+ window.addEventListener('resize',()=>{if(position)move(position.x,position.y);else positionPanel()});
  document.addEventListener('click',event=>{if(!panel.hidden&&!sun.contains(event.target))setOpen(false)});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!panel.hidden){setOpen(false);toggle.focus()}});
 })();

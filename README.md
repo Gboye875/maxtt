@@ -12,7 +12,7 @@ Extract the complete ZIP, keeping all files together, then open `index.html` in 
 - `glass.css`: rebuilt glass surfaces, teal/green styling, responsive layout and navigation styling.
 - `glass.js`: mobile navigation, keyboard dismissal, skip link and input length limits. It does not duplicate the existing planner/filter/download handlers.
 
-The energy planner is an illustrative estimate, not a final design or quotation. The enquiry form downloads a local text brief; it does not send enquiries to MaxTT. The website has no AI or live lead backend connected. The hero uses the stock solar photograph referenced in the saved page, not the video from the separate older project.
+The energy planner is an illustrative estimate, not a final design or quotation. The enquiry form opens a WhatsApp draft for the customer to send or downloads a local text brief. The website has no AI or live lead backend connected. The hero uses the stock solar photograph referenced in the saved page, not the video from the separate older project.
 
 ## Before launch
 
@@ -28,6 +28,6 @@ The hero now uses assets/hero-background.mp4 (the supplied Create-a-fresh-correc
 
 Local Motion 12.23.24 (vendor/motion.js, MIT licence included) adds short hero and section/card entrances. CSS handles 3px card lifts, button/arrow feedback and the mobile menu entrance. motions.js also eases the planner result over 220ms and FAQ open/close over 220ms. Entrances run once as content enters view, with a small card stagger; filter results animate after each selection. Reduced-motion preferences disable these effects. Content stays visible if the library or script fails. No 3D effects, continuous decorative animations or layout changes were added. Restart preview.cjs to serve the new local script files.
 
-## Social contact links
+## WhatsApp enquiries and social links
 
-The “Connect with MaxTT” section below the enquiry form uses ordinary HTTPS links, with no new dependencies. In index.html, find id="social-contact" and replace the three href values with MaxTT’s WhatsApp Business number (wa.me followed by country code and digits), Instagram profile URL and TikTok profile URL. Replace the demo captions and introductory note once all links are verified. The demo number cannot receive messages; the other demo links go to platform homepages.
+The quote form opens a prefilled WhatsApp chat with MaxTT at +234 912 239 5636 and still offers a local download. Customers review and tap Send in WhatsApp; there is no automatic submission or backend. In index.html, the floating social panel contains the WhatsApp wa.me link used by the form. Set the Instagram and TikTok links to the official profiles and update their preview captions once confirmed. The current mock links open the platform homepages.

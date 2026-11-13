@@ -1,5 +1,5 @@
 /* Adds missing navigation behaviour. Existing inline code owns the planner,
-   catalogue filters and enquiry downloads, avoiding duplicate listeners. */
+   catalogue filters; enquiry and floating social controls live below. */
 (() => {
  const header=document.querySelector('header'),nav=header?.querySelector('nav');
  if(!nav)return;
@@ -39,4 +39,42 @@
  function play(){if(!document.hidden)video.play().catch(()=>{})}
  video.addEventListener('volumechange',()=>{if(!video.muted||video.volume!==0){video.muted=true;video.volume=0}});
  video.addEventListener('canplay',play);document.addEventListener('visibilitychange',()=>{if(document.hidden)video.pause();else play()});play();
+})();
+
+(() => {
+ const form=document.querySelector('#quoteform'), whatsapp=document.querySelector('.sun-panel .social-whatsapp');
+ if(!form||!whatsapp)return;
+ const status=form.querySelector('#status'), messageLink=form.querySelector('#whatsapp-enquiry-link');
+ const fields=[['name','Name'],['contact','Phone or email'],['location','Location'],['interest','Interested in'],['needs','What I would like to power']];
+ function enquiry(){
+  const data=new FormData(form);
+  for (const key of ['name','contact','location','needs']) {const input=form.elements.namedItem(key);input.setCustomValidity(String(data.get(key)||'').trim()?'':'Please enter a value.');}
+  if(!form.reportValidity())return null;
+  const lines=fields.map(([key,label])=>label+': '+String(data.get(key)||'').trim());
+  const load=document.querySelector('#load'),hours=document.querySelector('#hours');
+  if(load&&hours)lines.push('Planning example: '+load.value+' W for '+hours.value+' hours.');
+  return 'Hello MaxTT, I would like a quote.\n\n'+lines.join('\n\n');
+ }
+ form.addEventListener('submit',event=>{
+  event.preventDefault();const message=enquiry();if(!message)return;
+  const url=new URL(whatsapp.href);url.searchParams.set('text',message);
+  messageLink.href=url.href;messageLink.hidden=false;messageLink.click();
+  status.textContent='Review your enquiry in WhatsApp and tap Send. If it did not open, use the link below.';
+ });
+ form.querySelector('#download-enquiry').addEventListener('click',()=>{
+  const message=enquiry();if(!message)return;
+  const url=URL.createObjectURL(new Blob([message+'\n\nPrepared locally; not submitted to MaxTT.'],{type:'text/plain;charset=utf-8'}));
+  const link=document.createElement('a');link.href=url;link.download='MaxTT-Power-Enquiry.txt';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  status.textContent='Your copy is ready to download. It has not been sent.';
+ });
+ form.addEventListener('input',event=>{event.target.setCustomValidity?.('');messageLink.hidden=true;status.textContent=''});
+})();
+
+(() => {
+ const sun=document.querySelector('.social-sun');if(!sun)return;
+ const toggle=sun.querySelector('.sun-toggle'),panel=sun.querySelector('.sun-panel');
+ function setOpen(open){panel.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Close contact and social links':'Open contact and social links')}
+ toggle.addEventListener('click',()=>setOpen(panel.hidden));
+ document.addEventListener('click',event=>{if(!panel.hidden&&!sun.contains(event.target))setOpen(false)});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!panel.hidden){setOpen(false);toggle.focus()}});
 })();
